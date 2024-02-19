@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+build:
+  version: "1.0"
+
+card:
+  message: "Welcome to Bank card Proud APIs "
+  contactDetails:
+    name: "Ana - Product Owner"
+    email: "ana@bank.com"
+  onCallSupport:
+    - (777) 555-1234
+    - (777) 523-1345

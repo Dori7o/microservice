@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+build:
+  version: "1.0"
+
+loan:
+  message: "Welcome to Bank loans Proud APIs "
+  contactDetails:
+    name: "Parrinha - Product Owner"
+    email: "parrinha@bank.com"
+  onCallSupport:
+    - (777) 555-1234
+    - (777) 523-1345

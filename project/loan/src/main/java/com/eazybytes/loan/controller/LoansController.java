@@ -2,6 +2,7 @@ package com.eazybytes.loan.controller;
 
 import com.eazybytes.loan.constants.LoansConstants;
 import com.eazybytes.loan.dto.ErrorResponseDto;
+import com.eazybytes.loan.dto.LoanContactInfoDto;
 import com.eazybytes.loan.dto.LoansDto;
 import com.eazybytes.loan.dto.ResponseDto;
 import com.eazybytes.loan.service.ILoansService;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,10 +30,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/api", produces = {MediaType.APPLICATION_JSON_VALUE})
 @AllArgsConstructor
 @Validated
+@EnableConfigurationProperties(value = LoanContactInfoDto.class)
 public class LoansController {
 
 
         private ILoansService iLoansService;
+
+        private LoanContactInfoDto loanContactInfoDto;
 
         @Operation(
                 summary = "Create Loan REST API",
@@ -160,4 +165,30 @@ public class LoansController {
                         .body(new ResponseDto(LoansConstants.STATUS_417, LoansConstants.MESSAGE_417_DELETE));
             }
         }
+
+    @Operation(
+            summary = "Get Contact Info",
+            description = "Contact Info details that can be reached out in case of any issues"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/contact-info")
+    public ResponseEntity<LoanContactInfoDto> getContactInfo() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(loanContactInfoDto);
+    }
+
 }

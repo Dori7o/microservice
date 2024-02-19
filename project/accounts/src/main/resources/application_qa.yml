@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: "qa"
+
+build:
+  version: "2.0"
+
+accounts:
+  message: "Welcome to Bank accounts QA APIs "
+  contactDetails:
+    name: "Dori7o OwO - Developer"
+    email: "doritos@bank.com"
+  onCallSupport:
+    - (666) 555-1234
+    - (666) 523-1345

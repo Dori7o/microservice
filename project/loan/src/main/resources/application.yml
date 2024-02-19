@@ -1,5 +1,5 @@
 server:
-  port: 9000
+  port: 8090
 spring:
   datasource:
     url: jdbc:h2:mem:testdb
@@ -8,7 +8,7 @@ spring:
     password: ''
   h2:
     console:
-     enabled: true
+      enabled: true
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
@@ -20,16 +20,18 @@ spring:
       - "application_prod.yml"
   profiles:
     active:
-      - "qa"
+       - "qa"
 
 build:
   version: "3.0"
 
-card:
-  message: "Welcome to Bank card related local APIs "
+loan:
+  message: "Welcome to Bank loan related local APIs "
   contactDetails:
     name: "Dori7o - Developer"
     email: "dori@bank.com"
   onCallSupport:
     - (555) 555-1234
     - (555) 523-1345
+
+

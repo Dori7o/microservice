@@ -2,6 +2,7 @@ package com.eazybytes.card.controller;
 
 import com.eazybytes.card.constants.CardConstants;
 
+import com.eazybytes.card.dto.CardContactInfoDto;
 import com.eazybytes.card.dto.CardDto;
 import com.eazybytes.card.dto.ErrorResponseDto;
 import com.eazybytes.card.dto.ResponseDto;
@@ -15,6 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,10 +30,23 @@ import org.springframework.web.bind.annotation.*;
 )
 @RestController
 @RequestMapping(path = "api", produces = MediaType.APPLICATION_JSON_VALUE)
-@AllArgsConstructor
+@EnableConfigurationProperties(value = CardContactInfoDto.class)
 public class CardController {
 
-     private ICardService iCardService;
+    @Value("${build.version}")
+    private String buildVersion;
+
+
+
+     private final ICardService iCardService;
+
+     @Autowired
+     private CardContactInfoDto cardContactInfoDto;
+
+    public CardController(ICardService iCardService){
+        this.iCardService = iCardService;
+    }
+
 
     @Operation(
             summary = "CREATE Card Rest API",
@@ -148,4 +165,52 @@ public class CardController {
                     .body(new ResponseDto(CardConstants.STATUS_417, CardConstants.MESSAGE_417_DELETE));
         }
     }
+
+    @Operation(
+            summary = "Get Build information",
+            description = "Get Build information that is deployed into cards microservice"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo() {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(buildVersion);
+    }
+
+    @Operation(
+            summary = "Card Contact Info details REST API",
+            description = "REST API to Card Contact Info details"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
+    @GetMapping("/contact-info")
+    public ResponseEntity<CardContactInfoDto> getContactInfo (){
+        return ResponseEntity.status(HttpStatus.OK).body(cardContactInfoDto);
+    };
 }

@@ -83,7 +83,7 @@
 				<version>3.3.2</version>
 				<configuration>
 						<to>
-							<image>dori7o/${project.artifactId}:s4</image>
+							<image>dori7o/${project.artifactId}:s6</image>
 						</to>
 				</configuration>
 			</plugin>
