@@ -1,0 +1,11 @@
+build:
+  version: "3.0"
+
+card:
+  message: "Welcome to Bank card related local APIs "
+  contactDetails:
+    name: "Dori7o - Developer"
+    email: "dori@bank.com"
+  onCallSupport:
+    - (555) 555-1234
+    - (555) 523-1345
