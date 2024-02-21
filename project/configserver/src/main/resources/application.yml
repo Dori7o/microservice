@@ -2,12 +2,43 @@ spring:
   application:
     name: "configserver"
   profiles:
-    active: native
+    active: git
+    #active: native
   cloud:
     config:
       server:
-        native:
-          search-locations: "classpath:/config"
+        #native:
+          #search-locations: "classpath:/config"
+          #search-locations: "file:///C://Users//Utilizador�//Documents//bootcamp//Udemy//Microservices//config"
+        git:
+          uri: "https://github.com/Dori7o/dori7o-config.git"
+          default-label: main
+          timeout: 5
+          clone-on-start: true
+          force-pull: true
+  rabbitmq:
+    host: "localhost"
+    port: 5672
+    username: "guest"
+    password: "guest"
 
 server:
   port: 8071
+encrypt:
+  key: "(urD&#oz7SNskLG"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
