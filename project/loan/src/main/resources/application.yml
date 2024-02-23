@@ -30,9 +30,17 @@ management:
   endpoint:
     shutdown:
       enabled: true
-    info:
-      env:
+    health:
+      probes:
         enabled: true
+  info:
+    env:
+      enabled: true
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
 
 endpoints:
   shutdown:
@@ -52,3 +60,9 @@ eureka:
       name: "loan"
       description: "Bank Loan Application"
       version: "1.0.0"
+
+logging:
+  level:
+    com:
+      eazybytes:
+        loan: DEBUG
