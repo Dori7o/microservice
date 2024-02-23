@@ -1,6 +1,6 @@
 services:
   configserver:
-    image: "dori7o/configserver:s6"
+    image: "dori7o/configserver:s8"
     container_name: configserver-ms
     ports:
       - "8071:8071"
@@ -14,8 +14,25 @@ services:
       file: common-config.yml
       service: microservice-base-config
 
+  eurekaserver:
+    image: "dori7o/eurekaserver:s8"
+    container_name: eurekaserver-ms
+    ports:
+      - "8070:8070"
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: microservice-configserver-config
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+
   accounts:
-    image: "dori7o/accounts:s6"
+    image: "dori7o/accounts:s8"
     container_name: accounts-ms
     ports:
       - "8080:8080"
@@ -23,30 +40,29 @@ services:
       SPRING_APPLICATION_NAME: "accounts"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
-
+      service: microservice-eureka-config
 
   loan:
-    image: "dori7o/loan:s6"
-    container_name: loan-ms
+    image: "dori7o/loan:s8"
+    container_name: loans-ms
     ports:
       - "8090:8090"
     environment:
       SPRING_APPLICATION_NAME: "loan"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
-  card:
-    image: "dori7o/card:s6"
-    container_name: card-ms
+  cards:
+    image: "dori7o/card:s8"
+    container_name: cards-ms
     ports:
       - "9000:9000"
     environment:
       SPRING_APPLICATION_NAME: "card"
     extends:
       file: common-config.yml
-      service: microservice-configserver-config
+      service: microservice-eureka-config
 
 networks:
   eazybank:

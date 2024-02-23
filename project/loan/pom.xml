@@ -59,7 +59,7 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,7 +91,7 @@
                 <version>3.3.2</version>
                 <configuration>
                     <to>
-                        <image>dori7o/${project.artifactId}:s6</image>
+                        <image>dori7o/${project.artifactId}:s8</image>
                     </to>
                 </configuration>
             </plugin>
