@@ -9,6 +9,15 @@ spring:
         locator:
           enabled: false
           lower-case-service-id: true
+      httpclient:
+        connect-timeout: 1000
+        response-timeout: 2s
+  data:
+    redis:
+      connect-timeout: 2s
+      host: localhost
+      port: 6379
+      timeout: 1s
 
 management:
   endpoints:
@@ -33,3 +42,12 @@ logging:
     com:
       eazybytes:
         gatewayserver: DEBUG
+
+resilience4j.circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 2
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+
