@@ -35,8 +35,8 @@ public class GatewayserverApplication {
 										.setFallbackUri("forward:/contactSupport")))
 						.uri("lb://ACCOUNTS"))
 				.route(p -> p
-						.path("/bank/loans/**")
-						.filters( f -> f.rewritePath("/bank/loans/(?<segment>.*)","/${segment}")
+						.path("/bank/loan/**")
+						.filters( f -> f.rewritePath("/bank/loan/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
 								.retry(retryConfig -> retryConfig.setRetries(3)
 										.setMethods(HttpMethod.GET)
@@ -47,8 +47,9 @@ public class GatewayserverApplication {
 						.path("/bank/card/**")
 						.filters( f -> f.rewritePath("/bank/card/(?<segment>.*)","/${segment}")
 								.addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
-								.requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter())
-										.setKeyResolver(userKeyResolver())))
+							.requestRateLimiter(config -> config.setRateLimiter(redisRateLimiter())
+										.setKeyResolver(userKeyResolver()))
+						)
 						.uri("lb://CARD")).build();
 
 	}
