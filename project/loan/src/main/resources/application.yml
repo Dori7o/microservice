@@ -41,6 +41,9 @@ management:
       enabled: true
     liveness-state:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
 
 endpoints:
   shutdown:
@@ -66,3 +69,5 @@ logging:
     com:
       eazybytes:
         loan: DEBUG
+  pattern:
+    level: "%5p [${spring.application.name},%X{trace_id},%X{span_id}]"

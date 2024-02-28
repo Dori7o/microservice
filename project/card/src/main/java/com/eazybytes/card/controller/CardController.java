@@ -93,8 +93,9 @@ public class CardController {
     )
     @GetMapping("/fetch")
     public ResponseEntity<CardDto> fetchCardDetails (@RequestHeader("bank-correlation-id") String correlationId,@RequestParam @Pattern(regexp = "(^$|[0-9]{10})", message = "Mobile number must be 10 digits") String mobileNumber){
-        logger.debug("bank-correlation-id found: {}" , correlationId);
+        logger.debug("fetchCardDetails has started");
         CardDto cardDto = iCardService.fetchCard(mobileNumber);
+        logger.debug("fetchCardDetails has started");
         return ResponseEntity.status(HttpStatus.OK).body(cardDto);
     };
     @Operation(
