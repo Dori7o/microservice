@@ -1,4 +1,20 @@
 services:
+  rabbit:
+    image: rabbitmq:3.12-management
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   keycloak:
     image: quay.io/keycloak/keycloak:22.0.1
     container_name: keycloak
@@ -32,6 +48,7 @@ services:
       eazybank:
         aliases:
           - loki
+
   write:
     image: grafana/loki:2.9.2
     command: "-config.file=/etc/loki/config.yaml -target=write"
@@ -40,7 +57,7 @@ services:
       - 7946
       - 9095
     volumes:
-       - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml
+      - ../observability/loki/loki-config.yaml:/etc/loki/config.yaml
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1" ]
       interval: 10s
@@ -117,11 +134,11 @@ services:
   grafana:
     image: grafana/grafana:latest
     environment:
-       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-       - GF_AUTH_ANONYMOUS_ENABLED=true
-       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
     depends_on:
-       - gateway
+      - gateway
     entrypoint:
       - sh
       - -euc
@@ -141,85 +158,85 @@ services:
       service: network-deploy-service
 
   gateway:
-      image: nginx:latest
-      depends_on:
-        - read
-        - write
-      entrypoint:
-        - sh
-        - -euc
-        - |
-          cat <<EOF > /etc/nginx/nginx.conf
-          user  nginx;
-          worker_processes  5;  ## Default: 1
+    image: nginx:latest
+    depends_on:
+      - read
+      - write
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        cat <<EOF > /etc/nginx/nginx.conf
+        user  nginx;
+        worker_processes  5;  ## Default: 1
 
-          events {
-            worker_connections   1000;
-          }
+        events {
+          worker_connections   1000;
+        }
 
-          http {
-            resolver 127.0.0.11;
+        http {
+          resolver 127.0.0.11;
 
-            server {
-              listen             3100;
+          server {
+            listen             3100;
 
-              location = / {
-                return 200 'OK';
-                auth_basic off;
-              }
+            location = / {
+              return 200 'OK';
+              auth_basic off;
+            }
 
-              location = /api/prom/push {
-                proxy_pass       http://write:3100\$$request_uri;
-              }
+            location = /api/prom/push {
+              proxy_pass       http://write:3100\$$request_uri;
+            }
 
-              location = /api/prom/tail {
-                proxy_pass       http://read:3100\$$request_uri;
-                proxy_set_header Upgrade \$$http_upgrade;
-                proxy_set_header Connection "upgrade";
-              }
+            location = /api/prom/tail {
+              proxy_pass       http://read:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
 
-              location ~ /api/prom/.* {
-                proxy_pass       http://read:3100\$$request_uri;
-              }
+            location ~ /api/prom/.* {
+              proxy_pass       http://read:3100\$$request_uri;
+            }
 
-              location = /loki/api/v1/push {
-                proxy_pass       http://write:3100\$$request_uri;
-              }
+            location = /loki/api/v1/push {
+              proxy_pass       http://write:3100\$$request_uri;
+            }
 
-              location = /loki/api/v1/tail {
-                proxy_pass       http://read:3100\$$request_uri;
-                proxy_set_header Upgrade \$$http_upgrade;
-                proxy_set_header Connection "upgrade";
-              }
+            location = /loki/api/v1/tail {
+              proxy_pass       http://read:3100\$$request_uri;
+              proxy_set_header Upgrade \$$http_upgrade;
+              proxy_set_header Connection "upgrade";
+            }
 
-              location ~ /loki/api/.* {
-                proxy_pass       http://read:3100\$$request_uri;
-              }
+            location ~ /loki/api/.* {
+              proxy_pass       http://read:3100\$$request_uri;
             }
           }
-          EOF
-          /docker-entrypoint.sh nginx -g "daemon off;"
-      ports:
-        - "3100:3100"
-      healthcheck:
-        test: [ "CMD", "service", "nginx", "status" ]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-      extends:
-        file: common-config.yml
-        service: network-deploy-service
+        }
+        EOF
+        /docker-entrypoint.sh nginx -g "daemon off;"
+    ports:
+      - "3100:3100"
+    healthcheck:
+      test: [ "CMD", "service", "nginx", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
 
   configserver:
-    image: "dori7o/configserver:s12"
+    image: "dori7o/configserver:s13"
     container_name: configserver-ms
     ports:
       - "8071:8071"
     healthcheck:
       test: "curl --fail --silent localhost:8071/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: common-config.yml
@@ -228,15 +245,15 @@ services:
       OTEL_SERVICE_NAME: "configserver"
 
   eurekaserver:
-    image: "dori7o/eurekaserver:s12"
+    image: "dori7o/eurekaserver:s13"
     container_name: eurekaserver-ms
     ports:
       - "8070:8070"
     healthcheck:
       test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     extends:
       file: common-config.yml
@@ -246,29 +263,33 @@ services:
       OTEL_SERVICE_NAME: "eurekaserver"
 
   accounts:
-    image: "dori7o/accounts:s12"
+    image: "dori7o/accounts:s13"
     container_name: accounts-ms
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
+    depends_on:
+      rabbit:
+        condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "accounts"
       OTEL_SERVICE_NAME: "accounts"
+      SPRING_RABBITMQ_HOST: "rabbit"
     extends:
       file: common-config.yml
       service: microservice-eureka-config
 
-  loan:
-    image: "dori7o/loan:s12"
-    container_name: loans-ms
+  loans:
+    image: "dori7o/loan:s13"
+    container_name: loan-ms
     healthcheck:
       test: "curl --fail --silent localhost:8090/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "loan"
@@ -277,14 +298,14 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
 
-  card:
-    image: "dori7o/card:s12"
+  cards:
+    image: "dori7o/card:s13"
     container_name: cards-ms
     healthcheck:
       test: "curl --fail --silent localhost:9000/actuator/health/readiness | grep UP || exit 1"
-      interval: 10s
+      interval: 20s
       timeout: 5s
-      retries: 10
+      retries: 20
       start_period: 10s
     environment:
       SPRING_APPLICATION_NAME: "card"
@@ -293,17 +314,29 @@ services:
       file: common-config.yml
       service: microservice-eureka-config
 
+  message:
+    image: "dori7o/message:s13"
+    container_name: message-ms
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
+    extends:
+      file: common-config.yml
+      service: network-deploy-service
+
   gatewayserver:
-    image: "dori7o/gatewayserver:s12"
+    image: "eazybytes/gatewayserver:s13"
     container_name: gatewayserver-ms
     ports:
       - "8072:8072"
     depends_on:
       accounts:
         condition: service_healthy
-      loan:
+      loans:
         condition: service_healthy
-      card:
+      cards:
         condition: service_healthy
     environment:
       SPRING_APPLICATION_NAME: "gatewayserver"
